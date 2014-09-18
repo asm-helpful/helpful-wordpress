@@ -32,37 +32,47 @@ class Helpful_Plugin {
         return $this->version;
     }
 
+    public function start() {
+        add_action( 'init', array( $this, 'setup' ) );
+    }
+
     public function setup() {
-        $this->load_dependencies();
-        $this->setup_common_hooks();
+        $this->register_scripts();
+
+        $this->settings_manager = helpful_settings_manager();
+
+        $this->common_setup();
 
         if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-            // $this->setup_ajax_hooks();
+            // $this->ajax_setup();
         } else if ( is_admin() ) {
-            // $this->setup_admin_hooks();
+            $this->admin_setup();
         } else {
-            $this->setup_public_hooks();
+            $this->public_setup();
         }
     }
 
-    private function load_dependencies() {
-        /**
-         * The clas responsible for defining internationalization functionality
-         * of the plugin.
-         */
-        require_once HELPFUL_DIR . '/public/class-helpful-widget-installer.php';
-    }
-
-    private function setup_common_hooks() {
-        add_action( 'init', array( $this, 'register_scripts' ) );
-    }
-
-    public function register_scripts() {
+    private function register_scripts() {
         wp_register_script( 'helpful-widget', '//assets.helpful.io/assets/widget.js', array(), $this->get_version(), true );
+        // wp_register_script( 'helpful-widget', 'http://localhost:5000/assets/widget.js', array(), $this->get_version(), true );
     }
 
-    private function setup_public_hooks() {
+    private function common_setup() {
+        $this->settings_manager->register_settings();
+    }
+
+    private function admin_setup() {
+        add_action( 'admin_init', array( $this->settings_manager, 'register_settings_in_wordpress' ) );
+
+        $admin_menu_creator = new Helpful_Admin_Menu_Creator();
+        add_action( 'admin_menu', array( $admin_menu_creator, 'create_admin_menu' ) );
+    }
+
+    private function public_setup() {
         $widget_installer = new Helpful_Widget_Installer();
         add_action( 'wp_enqueue_scripts', array( $widget_installer, 'enqueue_scripts' ) );
+
+        $helpful_shortcode = helpful_shortcode();
+        add_shortcode( 'helpful', array( $helpful_shortcode, 'shortcode' ), 10, 2 );
     }
 }

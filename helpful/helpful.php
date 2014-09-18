@@ -26,16 +26,33 @@ if ( ! defined( 'WPINC' ) ) {
 define( 'HELPFUL_DIR', rtrim( plugin_dir_path( __FILE__ ), '/' ) );
 define( 'HELPFUL_URL', rtrim( plugin_dir_url( __FILE__ ), '/' ) );
 
-require_once HELPFUL_DIR . '/includes/class-helpful-plugin.php';
-
 /**
  * Begins execution of the plugin.
  *
  * @since 1.0.0
  */
 function setup_helpful_plugin() {
-    $plugin = new Helpful_Plugin();
-    $plugin->setup();
+    load_helpful_dependencies();
+    helpful_plugin()->start();
 }
 
 add_action( 'plugins_loaded', 'setup_helpful_plugin' );
+
+/**
+ * @since 1.0.0
+ */
+function load_helpful_dependencies() {
+    require_once HELPFUL_DIR . '/bootstrap/construction-root.php';
+
+    require_once HELPFUL_DIR . '/includes/functions.php';
+    require_once HELPFUL_DIR . '/includes/class-helpful-plugin.php';
+    require_once HELPFUL_DIR . '/includes/class-helpful-settings.php';
+    require_once HELPFUL_DIR . '/includes/class-helpful-settings-manager.php';
+    require_once HELPFUL_DIR . '/includes/class-helpful-settings-renderer.php';
+
+    require_once HELPFUL_DIR . '/admin/class-helpful-admin-menu-creator.php';
+    require_once HELPFUL_DIR . '/admin/class-helpful-options-admin-page.php';
+
+    require_once HELPFUL_DIR . '/public/class-helpful-widget-installer.php';
+    require_once HELPFUL_DIR . '/public/class-helpful-shortcode.php';
+}
