@@ -18,7 +18,7 @@ class Helpful_Shortcode {
 
         // remove attributes with empty values
         foreach ( $atts as $name => $value ) {
-            $template = preg_replace( sprintf( '/ data-helpful-%s=""/', preg_quote( $name ) ), '', $template );
+            $template = preg_replace( sprintf( '/ data-helpful-%s=""/', preg_quote( str_replace( '_', '-', $name ) ) ), '', $template );
         }
 
         return wpautop( wptexturize( $template ) );
